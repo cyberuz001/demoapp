@@ -6,14 +6,10 @@
     <title>Game Market</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
     <script>
-        // Tailwind CSS uchun maxsus sozlamalar
         tailwind.config = {
             theme: {
                 extend: {
@@ -23,17 +19,27 @@
                         'tg-hint': 'var(--tg-theme-hint-color, #708499)',
                         'tg-link': 'var(--tg-theme-link-color, #62bcf9)',
                         'tg-button': 'var(--tg-theme-button-color, #5288c1)',
-                        'tg-button-text': 'var(--tg-theme-button-text-color, #ffffff)',
                         'tg-secondary-bg': 'var(--tg-theme-secondary-bg-color, #222e3a)',
                     }
                 }
             }
         }
     </script>
+    <style>
+        /* Bu stillar ilovani mobil qurilmalarda to'liq ekranni to'g'ri egallashiga yordam beradi */
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        body {
+            position: fixed;
+        }
+    </style>
 </head>
 <body class="bg-tg-bg text-tg-text font-sans antialiased">
 
-    <main class="pb-20">
+    <main class="h-full w-full overflow-y-auto pb-20">
         <div id="home-page" class="page active">
             <div class="swiper h-48">
                 <div class="swiper-wrapper">
@@ -44,10 +50,6 @@
             
             <div class="flex justify-between items-center p-4">
                 <h2 class="text-2xl font-bold">All items</h2>
-                <button id="fullscreen-toggle-btn" class="p-2 rounded-full hover:bg-tg-secondary-bg">
-                    <svg id="fullscreen-enter-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5"></path></svg>
-                    <svg id="fullscreen-exit-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 4H4v6m0 0l6 6m-6-6h6M14 20h6v-6m0 0l-6-6m6 6h-6"></path></svg>
-                </button>
             </div>
             
             <div id="card-container" class="px-4 grid grid-cols-2 gap-4">
@@ -55,12 +57,12 @@
         </div>
 
         <div id="buy-stars-page" class="page hidden p-4 text-center">
-            <h2 class="text-xl font-bold mt-10">Stars Sotib Olish</h2>
+            <h2 class="text-xl font-bold mt-10">Buy Stars</h2>
             <p class="text-tg-hint mt-2">Bu bo'lim tez kunda ishga tushadi.</p>
         </div>
         
         <div id="history-page" class="page hidden p-4 text-center">
-            <h2 class="text-xl font-bold mt-10">Amallar Tarixi</h2>
+            <h2 class="text-xl font-bold mt-10">History</h2>
             <p class="text-tg-hint mt-2">Hozircha amallar mavjud emas.</p>
         </div>
 
@@ -89,15 +91,12 @@
         </div>
     </main>
     
-    <footer id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-16 bg-tg-secondary-bg/80 backdrop-blur-sm border-t border-gray-700/50 flex justify-around items-center">
-        </footer>
+    <footer id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-16 bg-tg-secondary-bg/80 backdrop-blur-sm border-t border-gray-700/50 flex justify-around items-center"></footer>
 
     <script>
         const tg = window.Telegram.WebApp;
-        const ADMIN_IDS = [12345678]; // Bu yerga o'zingizning Telegram ID'ingizni yozing
-        let isFullscreen = tg.isExpanded;
+        const ADMIN_IDS = [12345678]; 
 
-        // SAHIFALARNI KO'RSATISH
         function showPage(pageId, navElement) {
             document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
             document.getElementById(pageId).classList.remove('hidden');
@@ -105,10 +104,9 @@
                 document.querySelectorAll('#bottom-nav .nav-item').forEach(i => i.classList.remove('active'));
                 navElement.classList.add('active');
             }
-            window.scrollTo(0, 0);
+            tg.BackButton.hide();
         }
 
-        // ICHKI SAHIFAGA O'TISH
         function showSubPage(subPageId) {
             const parentPageId = document.querySelector('.page:not(.hidden)').id;
             localStorage.setItem('parentPageId', parentPageId);
@@ -120,13 +118,12 @@
             tg.BackButton.show();
         }
 
-        // ORTGA QAYTISH
         function goBack() {
             const parentPageId = localStorage.getItem('parentPageId');
             if (parentPageId) {
                 const parentPage = document.getElementById(parentPageId);
                 const mainDiv = parentPage.querySelector(':scope > div:first-child');
-                const subDiv = parentPage.querySelector(':scope > .hidden[id$="-subpage"]');
+                const subDiv = parentPage.querySelector('.hidden[id$="-subpage"]');
 
                 if (subDiv) subDiv.classList.add('hidden');
                 mainDiv.classList.remove('hidden');
@@ -135,35 +132,14 @@
             }
         }
 
-        // TO'LIQ EKRAN REJIMI
-        function toggleFullscreen() {
-            if (tg.isExpanded) {
-                tg.exitFullscreen();
-            } else {
-                tg.requestFullscreen();
-            }
-        }
-        
-        function updateFullscreenIcons(isExpanded) {
-            document.getElementById('fullscreen-enter-icon').classList.toggle('hidden', isExpanded);
-            document.getElementById('fullscreen-exit-icon').classList.toggle('hidden', !isExpanded);
-        }
-
-        // ILOVA ISHGA TUSHGANDA
         document.addEventListener('DOMContentLoaded', function () {
             tg.ready();
-            updateFullscreenIcons(isFullscreen);
+            tg.setHeaderColor('secondary_bg_color'); 
+            tg.setBackgroundColor('secondary_bg_color');
+            tg.expand();
 
-            // HODISALARNI "ESHITISH"
             tg.onEvent('backButtonClicked', goBack);
-            tg.onEvent('fullscreenChanged', function(event) {
-                isFullscreen = event.isFullscreen;
-                updateFullscreenIcons(isFullscreen);
-                document.getElementById('bottom-nav').classList.toggle('hidden', isFullscreen);
-            });
-            document.getElementById('fullscreen-toggle-btn').addEventListener('click', toggleFullscreen);
 
-            // FOYDALANUVCHI MA'LUMOTLARI
             const user = tg.initDataUnsafe?.user;
             if (user) {
                 const profilePhoto = document.getElementById('profile-photo');
@@ -173,16 +149,13 @@
                     profilePhoto.classList.add('hidden');
                 }
                 document.getElementById('profile-name').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
-
                 if (ADMIN_IDS.includes(user.id)) {
                     document.getElementById('admin-panel-item').classList.remove('hidden');
                 }
             }
 
-            // CAROUSEL
             new Swiper('.swiper', { loop: true, autoplay: { delay: 3000 } });
 
-            // KARTALARNI CHIZISH
             const dummyAds = [
                 { id: 3673, title: 'Bonded Ring', price: '80', image: 'https://via.placeholder.com/300x300/2ea6ff/17212b?text=Item1' },
                 { id: 1550, title: 'Spiced Wine', price: '7.6', image: 'https://via.placeholder.com/300x300/e91e63/17212b?text=Item2' },
@@ -191,7 +164,7 @@
             ];
             const container = document.getElementById('card-container');
             container.innerHTML = dummyAds.map(ad => `
-                <div class="flex flex-col rounded-2xl bg-tg-secondary-bg overflow-hidden">
+                <div class="flex flex-col rounded-2xl bg-tg-bg overflow-hidden">
                     <img class="w-full h-auto aspect-square object-cover" src="${ad.image}" alt="${ad.title}">
                     <div class="p-3">
                         <p class="font-semibold truncate">${ad.title}</p>
@@ -208,23 +181,16 @@
                     </div>
                 </div>
             `).join('');
-
-            // PASTKI MENYUNI (BOTTOM NAV) CHIZISH - TIKLANDI
+            
             const navItems = [
                 { id: 'home-page', label: 'Home', icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>' },
-                { id: 'buy-stars-page', label: 'My gifts', icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3s-3 1.34-3 3c0 .35.07.69.18 1H6c-1.11 0-1.99.89-1.99 2L4 20c0 1.11.89 2 2 2h12c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1z"/></svg>' },
-                { id: 'history-page', label: 'Season', icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15-1.41-1.41L13 13.17V7h-2v6.17l-2.41-2.41L7.17 12 12 17z"/></svg>' },
+                { id: 'buy-stars-page', label: 'Buy Stars', icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15-1.41-1.41L13 13.17V7h-2v6.17l-2.41-2.41L7.17 12 12 17z"/></svg>' },
+                { id: 'history-page', label: 'History', icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-1-14h2v5h-2zm0 6h2v2h-2z"/></svg>' },
                 { id: 'profile-page', label: 'Profile', icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>' }
             ];
             const navContainer = document.getElementById('bottom-nav');
-            navContainer.innerHTML = navItems.map(item => `
-                <div class="nav-item flex-1 flex flex-col items-center justify-center cursor-pointer text-tg-hint" onclick="showPage('${item.id}', this)">
-                    <div class="w-6 h-6">${item.icon}</div>
-                    <span class="text-xs">${item.label}</span>
-                </div>
-            `).join('');
+            navContainer.innerHTML = navItems.map(item => `<div class="nav-item flex-1 flex flex-col items-center justify-center cursor-pointer text-tg-hint" onclick="showPage('${item.id}', this)"><div class="w-6 h-6">${item.icon}</div><span class="text-xs">${item.label}</span></div>`).join('');
 
-            // Boshlang'ich sahifani ko'rsatish
             showPage('home-page', navContainer.querySelector('.nav-item'));
         });
     </script>
