@@ -5,305 +5,181 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Game Market</title>
     
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <style>
-        :root {
-            --tg-theme-bg-color: #18222d;
-            --tg-theme-text-color: #ffffff;
-            --tg-theme-button-color: #2ea6ff;
-            --tg-theme-secondary-bg-color: #232e3c;
-            --tg-theme-hint-color: #8a99a8;
+    <script>
+        // Tailwind CSS uchun maxsus sozlamalar
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tg-bg': 'var(--tg-theme-bg-color, #18222d)',
+                        'tg-text': 'var(--tg-theme-text-color, #ffffff)',
+                        'tg-hint': 'var(--tg-theme-hint-color, #8a99a8)',
+                        'tg-link': 'var(--tg-theme-link-color, #2ea6ff)',
+                        'tg-button': 'var(--tg-theme-button-color, #2ea6ff)',
+                        'tg-button-text': 'var(--tg-theme-button-text-color, #ffffff)',
+                        'tg-secondary-bg': 'var(--tg-theme-secondary-bg-color, #232e3c)',
+                    }
+                }
+            }
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            padding-bottom: 70px; /* Pastki menyu uchun joy */
-            background-color: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
-            overflow-x: hidden;
-        }
-        
-        .page { display: none; }
-        .page.active { display: block; }
-        
-        #home-page { padding: 0; }
-        #profile-page, #history-page, #buy-stars-page { padding: 15px; }
-
-        /* Carousel */
-        .swiper { width: 100%; height: 180px; margin-bottom: 20px; border-radius: 0 0 20px 20px; overflow: hidden;}
-        .swiper-slide img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* --- 1. KARTALAR JOYLAShUVI TUZATILDI --- */
-        .card-container {
-            padding: 0 10px;
-            display: grid;
-            /* Ikkita ustunli setka */
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 15px; /* Kartochkalar orasidagi masofa */
-        }
-
-        /* --- 2. KARTA DIZAYNI YANGILANDI --- */
-        .card {
-            background-color: var(--tg-theme-secondary-bg-color);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.2s ease-in-out;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card-image-wrapper {
-            width: 100%;
-            padding-top: 100%; /* 1:1 aspect ratio */
-            position: relative;
-        }
-        .card-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .card-content {
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-        .card-title {
-            font-size: 14px;
-            font-weight: 600;
-            line-height: 1.3;
-            height: 3.9em; /* 3 qator matn uchun joy */
-            overflow: hidden;
-            margin: 0 0 8px 0;
-        }
-        .card-price {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--tg-theme-button-color);
-            margin-top: auto; /* Narxni pastga yopishtiradi */
-        }
-        .card.admin {
-             background: var(--tg-theme-button-color);
-             color: white;
-        }
-        .card.admin .card-price { color: white; }
-
-        /* Profile Sahifasi */
-        .profile-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 30px 0;
-        }
-        #profile-photo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 3px solid var(--tg-theme-button-color);
-            object-fit: cover;
-            margin-bottom: 15px;
-        }
-        #profile-name { font-size: 22px; font-weight: bold; }
-        
-        /* --- 3. PROFIL SAHIFASIGA YANGI MENYU QO'SHILDI --- */
-        .profile-menu {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .profile-menu-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            background-color: var(--tg-theme-secondary-bg-color);
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .profile-menu-item span {
-            margin-left: 15px;
-        }
-        .profile-menu-item .icon-left {
-            display: flex;
-            align-items: center;
-        }
-        .profile-menu-item svg {
-            width: 22px;
-            height: 22px;
-            fill: var(--tg-theme-hint-color);
-        }
-        .profile-menu-item .chevron-right {
-             fill: var(--tg-theme-hint-color);
-             width: 18px;
-             height: 18px;
-        }
-
-        /* Pastki menyu */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background-color: var(--tg-theme-secondary-bg-color); border-top: 1px solid #334150; display: flex; justify-content: space-around; align-items: center; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--tg-theme-hint-color); font-size: 12px; cursor: pointer; flex-grow: 1; padding: 5px 0; }
-        .nav-item.active { color: var(--tg-theme-button-color); }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 2px; }
-    </style>
+    </script>
 </head>
-<body>
+<body class="bg-tg-bg text-tg-text font-sans antialiased">
 
-    <main>
+    <main class="pb-20">
         <div id="home-page" class="page active">
-            <div class="swiper">
+            <div class="swiper h-48">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide"><img src="https://via.placeholder.com/600x360/2ea6ff/ffffff?text=Reklama+Banneri" alt="Ad 1"></div>
-                    <div class="swiper-slide"><img src="https://via.placeholder.com/600x360/333333/ffffff?text=Yangiliklar" alt="Ad 2"></div>
+                    <div class="swiper-slide"><img src="https://via.placeholder.com/600x360/2ea6ff/ffffff?text=Top+O'yinlar" class="w-full h-full object-cover"></div>
+                    <div class="swiper-slide"><img src="https://via.placeholder.com/600x360/333333/ffffff?text=Aksiya" class="w-full h-full object-cover"></div>
                 </div>
             </div>
-            <div class="card-container" id="card-container"></div>
+            <div id="card-container" class="p-4 grid grid-cols-2 gap-4">
+                </div>
         </div>
 
-        <div id="buy-stars-page" class="page" style="text-align: center; padding-top: 50px;">
-            <h2>Stars sotib olish</h2>
-            <p>Bu funksiya tez kunda ishga tushadi.</p>
+        <div id="buy-stars-page" class="page hidden p-4 text-center">
+            <h2 class="text-xl font-bold mt-10">Stars Sotib Olish</h2>
+            <p class="text-tg-hint mt-2">Bu bo'lim tez kunda ishga tushadi.</p>
         </div>
         
-        <div id="history-page" class="page" style="text-align: center; padding-top: 50px;">
-            <h2>Amallar tarixi</h2>
-            <p>Sizda hozircha amallar mavjud emas.</p>
+        <div id="history-page" class="page hidden p-4 text-center">
+            <h2 class="text-xl font-bold mt-10">Amallar Tarixi</h2>
+            <p class="text-tg-hint mt-2">Hozircha amallar mavjud emas.</p>
         </div>
 
-        <div id="profile-page" class="page">
-            <div class="profile-header">
-                <img id="profile-photo" src="" alt="Profile Photo">
-                <h2 id="profile-name"></h2>
+        <div id="profile-page" class="page hidden">
+            <div id="profile-main">
+                <div class="flex flex-col items-center p-6">
+                    <img id="profile-photo" class="w-24 h-24 rounded-full border-2 border-tg-button">
+                    <h2 id="profile-name" class="text-2xl font-bold mt-4"></h2>
+                </div>
+                <div class="px-4 flex flex-col gap-2">
+                    <div id="admin-panel-item" class="hidden bg-tg-secondary-bg p-4 rounded-lg flex justify-between items-center cursor-pointer">
+                        <div class="flex items-center gap-4"><svg class="w-6 h-6 text-tg-hint" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z M12 1.5a10.5 10.5 0 100 21 10.5 10.5 0 000-21zM5.495 18.525A6.752 6.752 0 0112 15a6.752 6.752 0 016.505 3.525 8.25 8.25 0 01-13.01 0z"/></svg><span>Admin Panel</span></div>
+                        <svg class="w-5 h-5 text-tg-hint" fill="currentColor" viewBox="0 0 24 24"><path d="M9.707 18.707l6-6c.39-.39.39-1.023 0-1.414l-6-6a1 1 0 00-1.414 1.414L13.586 12l-5.293 5.293a1 1 0 001.414 1.414z"/></svg>
+                    </div>
+                    <div onclick="showSubPage('help-subpage')" class="bg-tg-secondary-bg p-4 rounded-lg flex justify-between items-center cursor-pointer">
+                         <div class="flex items-center gap-4"><svg class="w-6 h-6 text-tg-hint" fill="currentColor" viewBox="0 0 24 24"><path d="M21.75 12.016c0 5.422-4.398 9.797-9.797 9.797-5.398 0-9.797-4.375-9.797-9.797s4.398-9.797 9.797-9.797c5.398 0 9.797 4.375 9.797 9.797zm-1.5 0c0-4.594-3.703-8.297-8.297-8.297-4.594 0-8.297 3.703-8.297 8.297 0 4.594 3.703 8.297 8.297 8.297 4.594 0 8.297-3.703 8.297-8.297zm-9.281-2.438a1.03 1.03 0 01-1.032-1.031c0-.562.47-1.031 1.032-1.031.562 0 1.03.469 1.03 1.031 0 .562-.469 1.03-1.03 1.03zm-1.031 1.578h2.062v5.766h-2.062V11.156z"/></svg><span>Yordam Markazi (Help)</span></div>
+                        <svg class="w-5 h-5 text-tg-hint" fill="currentColor" viewBox="0 0 24 24"><path d="M9.707 18.707l6-6c.39-.39.39-1.023 0-1.414l-6-6a1 1 0 00-1.414 1.414L13.586 12l-5.293 5.293a1 1 0 001.414 1.414z"/></svg>
+                    </div>
+                </div>
             </div>
-            <div class="profile-menu">
-                <div class="profile-menu-item">
-                    <div class="icon-left">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 12.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z M12 1.5a10.5 10.5 0 100 21 10.5 10.5 0 000-21zM5.495 18.525A6.752 6.752 0 0112 15a6.752 6.752 0 016.505 3.525 8.25 8.25 0 01-13.01 0z"/></svg>
-                        <span>Admin Panel</span>
-                    </div>
-                    <svg class="chevron-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.707 18.707l6-6c.39-.39.39-1.023 0-1.414l-6-6a1 1 0 00-1.414 1.414L13.586 12l-5.293 5.293a1 1 0 001.414 1.414z"/></svg>
+            
+            <div id="help-subpage" class="hidden">
+                <div class="p-2 flex items-center">
+                    <button onclick="goBack('profile-main', 'help-subpage')" class="p-2 rounded-full hover:bg-tg-secondary-bg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <h2 class="text-xl font-bold mx-auto">Yordam Markazi</h2>
                 </div>
-                 <div class="profile-menu-item">
-                    <div class="icon-left">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.75 12.016c0 5.422-4.398 9.797-9.797 9.797-5.398 0-9.797-4.375-9.797-9.797s4.398-9.797 9.797-9.797c5.398 0 9.797 4.375 9.797 9.797zm-1.5 0c0-4.594-3.703-8.297-8.297-8.297-4.594 0-8.297 3.703-8.297 8.297 0 4.594 3.703 8.297 8.297 8.297 4.594 0 8.297-3.703 8.297-8.297zm-9.281-2.438a1.03 1.03 0 01-1.032-1.031c0-.562.47-1.031 1.032-1.031.562 0 1.03.469 1.03 1.031 0 .562-.469 1.03-1.03 1.03zm-1.031 1.578h2.062v5.766h-2.062V11.156z"/></svg>
-                        <span>Yordam Markazi (Help)</span>
-                    </div>
-                     <svg class="chevron-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.707 18.707l6-6c.39-.39.39-1.023 0-1.414l-6-6a1 1 0 00-1.414 1.414L13.586 12l-5.293 5.293a1 1 0 001.414 1.414z"/></svg>
-                </div>
-                <div class="profile-menu-item">
-                    <div class="icon-left">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.5 21a.75.75 0 01-.75-.75V3.75a.75.75 0 011.5 0v16.5a.75.75 0 01-.75.75zM15.352 18.336a.75.75 0 01-.52-1.29l3-2.885a.75.75 0 011.04 1.08l-3 2.885a.747.747 0 01-.52.21zM15 12.75H4.5a.75.75 0 010-1.5H15a.75.75 0 010 1.5z"/></svg>
-                        <span>Foydalanish Shartlari</span>
-                    </div>
-                     <svg class="chevron-right" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.707 18.707l6-6c.39-.39.39-1.023 0-1.414l-6-6a1 1 0 00-1.414 1.414L13.586 12l-5.293 5.293a1 1 0 001.414 1.414z"/></svg>
+                 <div class="p-4">
+                    <p class="text-tg-hint">Savollaringiz bo'lsa, biz bilan bog'laning: @support_admin</p>
                 </div>
             </div>
         </div>
     </main>
-
-    <footer class="bottom-nav">
-       </footer>
+    
+    <footer id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-16 bg-tg-secondary-bg border-t border-gray-700 flex justify-around items-center">
+        </footer>
 
     <script>
-        // --- BU YERDA JAVASCRIPT KODI O'ZGARIShSIZ QOLADI ---
-        // (Oldingi javobdagi JavaScript kodini shu yerga to'liq ko'chirib o'tkazing)
-        // Men uni qisqartirish uchun bu yerga qayta yozmadim.
-        // Asosiy o'zgarishlar HTML va CSS da bo'ldi.
+        // --- ASOSIY ILOVA LOGIKASI ---
+        const tg = window.Telegram.WebApp;
+        const ADMIN_IDS = [12345678]; // O'zingizning Telegram ID'ingizni yozing
+
+        function showPage(pageId, navElement) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            document.querySelectorAll('#bottom-nav .nav-item').forEach(i => i.classList.remove('active'));
+            navElement.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // ICHKI SAHIFANI KO'RSATISH UCHUN FUNKSIYA
+        function showSubPage(subPageId) {
+            // Asosiy kontentni yashirish
+            const parentPage = document.getElementById(subPageId).closest('.page');
+            parentPage.querySelectorAll(':scope > div').forEach(child => child.classList.add('hidden'));
+            
+            // Ichki sahifani ko'rsatish
+            document.getElementById(subPageId).classList.remove('hidden');
+            // Pastki menyuni yashirish
+            document.getElementById('bottom-nav').classList.add('hidden');
+        }
+
+        // ORTGA QAYTISH FUNKSIYASI
+        function goBack(mainPageId, subPageId) {
+            document.getElementById(subPageId).classList.add('hidden');
+            document.getElementById(mainPageId).classList.remove('hidden');
+             // Pastki menyuni ko'rsatish
+            document.getElementById('bottom-nav').classList.remove('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            tg.ready();
+            tg.expand();
+            tg.setHeaderColor('#18222d');
+            tg.setBackgroundColor('#18222d');
+
+            const user = tg.initDataUnsafe?.user;
+            const isUserAdmin = user && ADMIN_IDS.includes(user.id);
+            
+            if (isUserAdmin) {
+                document.getElementById('admin-panel-item').classList.remove('hidden');
+            }
+            
+            new Swiper('.swiper', { loop: true, autoplay: { delay: 3000 } });
+            
+            const dummyAds = [
+                { id: 1, title: 'PUBG M416 Glacier 5lvl + Full Season RP', price: '500 Stars', image: 'https://via.placeholder.com/300x300/ff9800/ffffff?text=PUBG', isAdmin: true },
+                { id: 2, title: 'MLBB 150+ Skins, 30+ Epic', price: '1,200,000 UZS', image: 'https://via.placeholder.com/300x300/2ea6ff/ffffff?text=MLBB', isAdmin: false },
+                { id: 3, title: 'CS:GO Prime + Dragon Lore skin', price: '750,000 UZS', image: 'https://via.placeholder.com/300x300/4caf50/ffffff?text=CS:GO', isAdmin: false },
+                { id: 4, title: 'Free Fire Sultan Account, All Evo', price: '900,000 UZS', image: 'https://via.placeholder.com/300x300/f44336/ffffff?text=FF', isAdmin: false },
+            ];
+
+            const container = document.getElementById('card-container');
+            container.innerHTML = dummyAds.map(ad => `
+                <div class="bg-tg-secondary-bg rounded-lg shadow-lg overflow-hidden cursor-pointer ${ad.isAdmin ? 'border-2 border-tg-button' : ''}">
+                    <div class="relative w-full" style="padding-top: 100%;">
+                        <img class="absolute top-0 left-0 w-full h-full object-cover" src="${ad.image}" alt="${ad.title}">
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-semibold text-sm truncate">${ad.title}</h3>
+                        <p class="font-bold text-tg-link mt-2">${ad.price}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            if (user) {
+                document.getElementById('profile-photo').src = user.photo_url || '';
+                document.getElementById('profile-name').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            }
+
+            const navItems = [
+                { id: 'home-page', label: 'Home', icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>' },
+                { id: 'buy-stars-page', label: 'Buy Stars', icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15-1.41-1.41L13 13.17V7h-2v6.17l-2.41-2.41L7.17 12 12 17z"/></svg>' },
+                { id: 'history-page', label: 'History', icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-1-14h2v5h-2zm0 6h2v2h-2z"/></svg>' },
+                { id: 'profile-page', label: 'Profile', icon: '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>' }
+            ];
+
+            const navContainer = document.getElementById('bottom-nav');
+            navContainer.innerHTML = navItems.map(item => `
+                <div class="nav-item flex-1 flex flex-col items-center justify-center cursor-pointer text-tg-hint" onclick="showPage('${item.id}', this)">
+                    <div class="w-6 h-6">${item.icon}</div>
+                    <span class="text-xs">${item.label}</span>
+                </div>
+            `).join('');
+
+            showPage('home-page', navContainer.querySelector('.nav-item'));
+        });
     </script>
 </body>
 </html>
-
-<script>
-    const tg = window.Telegram.WebApp;
-    const ADMIN_IDS = [12345678, 87654321]; // Bu yerga o'zingizning Telegram ID'ingizni yozing
-
-    function showPage(pageId, navElement) {
-        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-        navElement.classList.add('active');
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        tg.ready();
-        tg.setHeaderColor('#18222d');
-        tg.setBackgroundColor('#18222d');
-
-        const user = tg.initDataUnsafe?.user;
-        const isUserAdmin = user && ADMIN_IDS.includes(user.id);
-        
-        // Admin Panel menyusini faqat adminlar uchun ko'rsatish
-        const adminMenuItem = document.querySelector('.profile-menu-item'); // Bu birinchi menyu
-        if (isUserAdmin) {
-            adminMenuItem.style.display = 'flex';
-        } else {
-            adminMenuItem.style.display = 'none';
-        }
-
-        new Swiper('.swiper', { loop: true, autoplay: { delay: 3000 } });
-
-        const dummyAds = [
-            { id: 1, title: 'PUBG Mobile M416 Glacier 5lvl + Full Season RP', price: '500 Stars', image: 'https://via.placeholder.com/300x300/ff9800/ffffff?text=PUBG', isAdmin: true },
-            { id: 2, title: 'Mobile Legends 150+ Skins, 30+ Epic', price: '1,200,000 UZS', image: 'https://via.placeholder.com/300x300/2ea6ff/ffffff?text=MLBB', isAdmin: false },
-            { id: 3, title: 'CS:GO Prime Account with AWP Dragon Lore skin', price: '750,000 UZS', image: 'https://via.placeholder.com/300x300/4caf50/ffffff?text=CS:GO', isAdmin: false },
-            { id: 4, title: 'Free Fire Sultan Account, All Evo Guns Maxed', price: '900,000 UZS', image: 'https://via.placeholder.com/300x300/f44336/ffffff?text=FreeFire', isAdmin: false },
-        ];
-
-        const container = document.getElementById('card-container');
-        container.innerHTML = '';
-        dummyAds.forEach(ad => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            if (ad.isAdmin) card.classList.add('admin');
-            
-            card.innerHTML = `
-                <div class="card-image-wrapper">
-                    <img class="card-image" src="${ad.image}" alt="${ad.title}">
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">${ad.title}</h3>
-                    <p class="card-price">${ad.price}</p>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-
-        if (user) {
-            document.getElementById('profile-photo').src = user.photo_url || '';
-            document.getElementById('profile-name').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
-        }
-
-        const navItems = document.querySelectorAll('.nav-item');
-        const footer = document.querySelector('.bottom-nav');
-        footer.innerHTML = `
-            <div class="nav-item active" onclick="showPage('home-page', this)">
-                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                <span>Home</span>
-            </div>
-            <div class="nav-item" onclick="showPage('buy-stars-page', this)">
-                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15-1.41-1.41L13 13.17V7h-2v6.17l-2.41-2.41L7.17 12 12 17z"/></svg>
-                <span>Buy Stars</span>
-            </div>
-            <div class="nav-item" onclick="showPage('history-page', this)">
-                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-1-14h2v5h-2zm0 6h2v2h-2z"/></svg>
-                <span>History</span>
-            </div>
-            <div class="nav-item" onclick="showPage('profile-page', this)">
-                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                <span>Profile</span>
-            </div>
-        `;
-        showPage('home-page', document.querySelector('.nav-item'));
-    });
-</script>
