@@ -7,18 +7,16 @@
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        /* Asosiy stillar */
+        /* QORA TEMA (TELEGRAM BLACK) */
         :root {
-            --tg-theme-bg-color: #ffffff;
-            --tg-theme-text-color: #000000;
-            --tg-theme-button-color: #2481cc;
-            --tg-theme-secondary-bg-color: #f3f3f3;
-            --tg-theme-hint-color: #aaaaaa;
-            --admin-card-bg-color: #3a9de0; /* Admin kartochkasi uchun maxsus rang */
+            --tg-theme-bg-color: #18222d;
+            --tg-theme-text-color: #ffffff;
+            --tg-theme-button-color: #2ea6ff;
+            --tg-theme-secondary-bg-color: #232e3c;
+            --tg-theme-hint-color: #8a99a8;
         }
 
         body {
@@ -30,241 +28,195 @@
             overflow-x: hidden;
         }
 
-        /* Carousel (Banner) stillari */
-        .swiper {
-            width: 100%;
-            height: 180px; /* Rasmdagidan balandroq */
-            margin-bottom: 20px;
+        /* Sahifalarni boshqarish */
+        .page {
+            display: none; /* Barcha sahifalar boshida yashiringan */
+            padding: 15px;
         }
-        .swiper-slide {
-            display: flex;
-            justify-content: center;
+        .page.active {
+            display: block; /* Faqat aktiv sahifa ko'rinadi */
+        }
+        
+        #home-page { padding: 0; } /* Bosh sahifada chetdan joy kerak emas */
+
+        /* Carousel */
+        .swiper { width: 100%; height: 180px; margin-bottom: 20px; }
+        .swiper-slide { display: flex; justify-content: center; align-items: center; background-color: #333; }
+        .swiper-slide img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Kartochkalar */
+        .card-container { padding: 0 15px; display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .card { background-color: var(--tg-theme-secondary-bg-color); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
+        .card-image { width: 100%; height: 150px; object-fit: cover; }
+        .card-content { padding: 15px; }
+        .card-title { font-size: 18px; font-weight: 600; margin: 0 0 10px 0; }
+        .card-price { font-size: 20px; font-weight: bold; color: var(--tg-theme-button-color); margin-bottom: 15px; }
+        .card-actions { display: flex; gap: 10px; }
+        .card-button { flex-grow: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .buy-button { background-color: var(--tg-theme-button-color); color: #ffffff; }
+        .buy-via-admin-button { background-color: transparent; border: 1px solid var(--tg-theme-hint-color); color: var(--tg-theme-hint-color); }
+        .card.admin { background: linear-gradient(135deg, #2ea6ff, #1d7ac4); color: white; }
+        .card.admin .card-price, .card.admin .buy-via-admin-button { color: white; }
+        .card.admin .buy-via-admin-button { border-color: white; }
+
+        /* Profile Sahifasi */
+        #profile-page {
+            display: none; /* Boshida yashiringan */
+            flex-direction: column;
             align-items: center;
-            background-color: #ccc;
+            justify-content: center;
+            padding-top: 50px;
+        }
+        #profile-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid var(--tg-theme-button-color);
+            object-fit: cover;
+        }
+        #profile-name {
+            margin-top: 20px;
             font-size: 24px;
             font-weight: bold;
         }
-        .swiper-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Kartochkalar uchun konteyner */
-        .card-container {
-            padding: 0 15px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-
-        /* Bitta kartochka stili */
-        .card {
-            background-color: var(--tg-theme-secondary-bg-color);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            display: flex;
-            flex-direction: column;
-        }
-        .card-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-        .card-content {
-            padding: 15px;
-        }
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0 0 10px 0;
-        }
-        .card-price {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--tg-theme-button-color);
-            margin-bottom: 15px;
-        }
-        .card-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .card-button {
-            flex-grow: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .buy-button {
-            background-color: var(--tg-theme-button-color);
-            color: #ffffff;
-        }
-        .buy-via-admin-button {
-            background-color: var(--tg-theme-secondary-bg-color);
-            border: 1px solid var(--tg-theme-button-color);
-            color: var(--tg-theme-button-color);
-        }
-
-        /* Admin kartochkasi uchun maxsus stil */
-        .card.admin {
-             background: linear-gradient(135deg, #4ca3e1, #2481cc);
-             color: white;
-        }
-        .card.admin .card-price, .card.admin .buy-via-admin-button {
-            color: white;
-        }
-        .card.admin .buy-via-admin-button {
-            border-color: white;
-            background-color: transparent;
-        }
-
 
         /* Pastki menyu */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background-color: var(--tg-theme-secondary-bg-color);
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--tg-theme-hint-color);
-            font-size: 12px;
-            cursor: pointer;
-        }
-        .nav-item.active {
-            color: var(--tg-theme-button-color);
-        }
-        .nav-item svg { /* Icon uchun joy */
-            width: 24px;
-            height: 24px;
-            margin-bottom: 2px;
-        }
-
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background-color: var(--tg-theme-secondary-bg-color); border-top: 1px solid #334150; display: flex; justify-content: space-around; align-items: center; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--tg-theme-hint-color); font-size: 12px; cursor: pointer; flex-grow: 1; padding: 5px 0; }
+        .nav-item.active { color: var(--tg-theme-button-color); }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 2px; }
     </style>
 </head>
 <body>
 
-    <div class="swiper">
-        <div class="swiper-wrapper">
-            <div class="swiper-slide"><img src="https://via.placeholder.com/600x300/2481cc/ffffff?text=Reklama+1" alt="Ad 1"></div>
-            <div class="swiper-slide"><img src="https://via.placeholder.com/600x300/333333/ffffff?text=Reklama+2" alt="Ad 2"></div>
-            <div class="swiper-slide"><img src="https://via.placeholder.com/600x300/4caf50/ffffff?text=Reklama+3" alt="Ad 3"></div>
+    <main>
+        <div id="home-page" class="page active">
+            <div class="swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><img src="https://via.placeholder.com/600x300/2ea6ff/ffffff?text=Reklama+1" alt="Ad 1"></div>
+                    <div class="swiper-slide"><img src="https://via.placeholder.com/600x300/333333/ffffff?text=Reklama+2" alt="Ad 2"></div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+            <div class="card-container" id="card-container"></div>
         </div>
-        <div class="swiper-pagination"></div>
-    </div>
 
-    <main class="card-container" id="card-container">
-        </main>
+        <div id="buy-stars-page" class="page" style="text-align: center;">
+            <h2>Stars sotib olish</h2>
+            <p>Bu yerda Telegram Stars orqali hisobingizni to'ldirish imkoniyati bo'ladi.</p>
+            <p>Bu funksiya Backend'ga ulangandan so'ng qo'shiladi.</p>
+        </div>
+        
+        <div id="history-page" class="page" style="text-align: center;">
+            <h2>Amallar tarixi</h2>
+            <p>Bu yerda sizning barcha xarid va to'lovlaringiz tarixi ko'rinadi.</p>
+            <p>Bu funksiya Backend'ga ulangandan so'ng qo'shiladi.</p>
+        </div>
+
+        <div id="profile-page" class="page">
+            <img id="profile-photo" src="" alt="Profile Photo">
+            <h2 id="profile-name"></h2>
+        </div>
+    </main>
 
     <footer class="bottom-nav">
-        <div class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        <div class="nav-item active" onclick="showPage('home-page', this)">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
             <span>Home</span>
         </div>
-        <div class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15-1.41-1.41L13 13.17V7h-2v6.17l-2.41-2.41L7.17 12 12 17z"/></svg>
+        <div class="nav-item" onclick="showPage('buy-stars-page', this)">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15-1.41-1.41L13 13.17V7h-2v6.17l-2.41-2.41L7.17 12 12 17z"/></svg>
             <span>Buy Stars</span>
         </div>
-        <div class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-1-14h2v5h-2zm0 6h2v2h-2z"/></svg>
+        <div class="nav-item" onclick="showPage('history-page', this)">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-1-14h2v5h-2zm0 6h2v2h-2z"/></svg>
             <span>History</span>
         </div>
-        <div class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <div class="nav-item" onclick="showPage('profile-page', this)">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             <span>Profile</span>
         </div>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Telegram WebApp obyektini ishga tushirish
-            const tg = window.Telegram.WebApp;
-            tg.ready();
+        // --- ASOSIY O'ZGARUVCHILAR ---
+        const tg = window.Telegram.WebApp;
+        const ADMIN_IDS = [12345678, 87654321]; // Bu yerga o'zingizning va boshqa adminlarning Telegram ID'larini yozing
 
-            // Carousel'ni ishga tushirish
-            const swiper = new Swiper('.swiper', {
-                loop: true,
-                autoplay: {
-                    delay: 3000,
-                    disableOnInteraction: false,
-                },
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
+        // --- SAHIFALARNI BOSHQARISH FUNKSIYASI ---
+        function showPage(pageId, navElement) {
+            // Barcha sahifalarni yashirish
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+                page.style.display = 'none'; // display'ni ham o'zgartiramiz
             });
 
-            // --- TEST UCHUN VAQTINCHALIK MA'LUMOTLAR ---
-            // Kelajakda bu ma'lumotlar serverdan (backend'dan) keladi.
-            const dummyAds = [
-                {
-                    id: 1,
-                    title: 'PUBG Mobile M416 Glacier 5lvl',
-                    price: '500 Stars',
-                    image: 'https://via.placeholder.com/400x300/ff9800/ffffff?text=PUBG+Account',
-                    isAdmin: true // Bu adminning e'loni
-                },
-                {
-                    id: 2,
-                    title: 'Mobile Legends 150+ Skins',
-                    price: '1,200,000 UZS',
-                    image: 'https://via.placeholder.com/400x300/2196f3/ffffff?text=ML+Account',
-                    isAdmin: false
-                },
-                {
-                    id: 3,
-                    title: 'CS:GO Prime Account + AWP Skin',
-                    price: '750,000 UZS',
-                    image: 'https://via.placeholder.com/400x300/4caf50/ffffff?text=CS:GO+Account',
-                    isAdmin: false
-                }
-            ];
-
-            // Ma'lumotlarni ekranga chiqarish funksiyasi
-            function renderAds(ads) {
-                const container = document.getElementById('card-container');
-                container.innerHTML = ''; // Konteynerni tozalash
-
-                ads.forEach(ad => {
-                    // Kartochka uchun div yaratish
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    if (ad.isAdmin) {
-                        card.classList.add('admin'); // Agar admin bo'lsa, maxsus klass qo'shamiz
-                    }
-                    
-                    // Kartochka tarkibini yaratish
-                    card.innerHTML = `
-                        <img class="card-image" src="${ad.image}" alt="${ad.title}">
-                        <div class="card-content">
-                            <h3 class="card-title">${ad.title}</h3>
-                            <p class="card-price">${ad.price}</p>
-                            <div class="card-actions">
-                                <button class="card-button buy-button">Sotib olish</button>
-                                <button class="card-button buy-via-admin-button">Admin orqali</button>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
+            // Kerakli sahifani ko'rsatish
+            const targetPage = document.getElementById(pageId);
+            targetPage.classList.add('active');
+            // Profile sahifasi uchun maxsus stil
+            if (pageId === 'profile-page') {
+                targetPage.style.display = 'flex';
+            } else {
+                targetPage.style.display = 'block';
             }
 
-            // Test ma'lumotlarini ekranga chiqarish
-            renderAds(dummyAds);
+
+            // Menyudagi aktiv tugmani o'zgartirish
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            navElement.classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            tg.ready();
+            // Ilovani qora temaga moslashtirish
+            tg.setHeaderColor('#18222d');
+            tg.setBackgroundColor('#18222d');
+
+            const user = tg.initDataUnsafe?.user;
+            const isUserAdmin = user && ADMIN_IDS.includes(user.id);
+            
+            // ADMIN QOIDALARI: Agar admin bo'lsa...
+            if (isUserAdmin) {
+                console.log("Admin foydalanuvchi tizimga kirdi.");
+                // Bu yerga kelajakda admin uchun maxsus funksiyalar qo'shiladi
+            }
+
+            // Carousel'ni ishga tushirish
+            new Swiper('.swiper', { loop: true, autoplay: { delay: 3000 } });
+
+            // Test e'lonlari
+            const dummyAds = [
+                { id: 1, title: 'PUBG Mobile M416 Glacier 5lvl', price: '500 Stars', image: 'https://via.placeholder.com/400x300/ff9800/ffffff?text=PUBG+Account', isAdmin: true },
+                { id: 2, title: 'Mobile Legends 150+ Skins', price: '1,200,000 UZS', image: 'https://via.placeholder.com/400x300/2ea6ff/ffffff?text=ML+Account', isAdmin: false }
+            ];
+
+            // E'lonlarni chizish
+            const container = document.getElementById('card-container');
+            container.innerHTML = '';
+            dummyAds.forEach(ad => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                // ADMIN QOIDALARI: Admin e'loni yoki admin o'zi pul tolamaydi
+                if (ad.isAdmin && isUserAdmin) {
+                     card.classList.add('admin');
+                } else if(ad.isAdmin){
+                     card.classList.add('admin');
+                }
+                card.innerHTML = `<img class="card-image" src="${ad.image}" alt="${ad.title}"><div class="card-content"><h3 class="card-title">${ad.title}</h3><p class="card-price">${ad.price}</p><div class="card-actions"><button class="card-button buy-button">Sotib olish</button>${!ad.isAdmin ? '<button class="card-button buy-via-admin-button">Admin orqali</button>' : ''}</div></div>`;
+                container.appendChild(card);
+            });
+
+            // Profile sahifasini ma'lumotlar bilan to'ldirish
+            if (user) {
+                document.getElementById('profile-photo').src = user.photo_url || '';
+                document.getElementById('profile-name').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            }
+
+            // Boshlang'ich sahifani ko'rsatish
+            showPage('home-page', document.querySelector('.nav-item'));
         });
     </script>
 </body>
